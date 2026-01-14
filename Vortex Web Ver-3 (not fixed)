@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vortex Web</title>
+    <head>
+  <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20230801/ourmid/pngtree-vortex-clipart-circle-in-the-shape-of-wave-with-colorful-splash-vector-png-image_6827802.png">
+</head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #1d1d21;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Main browser container */
+        .browser {
+            display: flex;
+            height: 100vh;
+            background: #1d1d21;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 60px;
+            background: #16161a;
+            border-right: 1px solid #2a2a2e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.expanded {
+            width: 300px;
+        }
+
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #8f8f9d;
+            position: relative;
+        }
+
+        .sidebar-icon:hover {
+            background: #ff1b54;
+            color: #fff;
+        }
+
+        .sidebar-icon.active {
+            background: #ff1b54;
+            color: #fff;
+        }
+
+        .sidebar-panel {
+            position: absolute;
+            left: 60px;
+            top: 0;
+            width: 340px;
+            height: 100vh;
+            background: #1d1d21;
+            border-right: 1px solid #2a2a2e;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .sidebar-panel.active {
+            transform: translateX(0);
+        }
+
+        .panel-header {
+            padding: 20px;
+            background: #16161a;
+            border-bottom: 1px solid #2a2a2e;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-close {
+            cursor: pointer;
+            font-size: 24px;
+            color: #8f8f9d;
+            transition: color 0.2s;
+        }
+
+        .panel-close:hover {
+            color: #ff1b54;
+        }
+
+        .panel-content {
+            padding: 20px;
+        }
+
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Tab bar */
+        .tab-bar {
+            background: #16161a;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border-bottom: 1px solid #2a2a2e;
+            height: 40px;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .tab-bar::-webkit-scrollbar {
+            height: 0;
+        }
+
+        .tab {
+            min-width: 180px;
+            max-width: 240px;
+            height: 32px;
+            background: #1d1d21;
+            border-radius: 8px 8px 0 0;
+            margin-right: 2px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .tab:hover {
+            background: #26262b;
+        }
+
+        .tab.active {
+            background: #2a2a2e;
+            border-bottom: 2px solid #ff1b54;
+        }
+
+        .tab-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .tab-title {
+            flex: 1;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #b1b1b8;
+        }
+
+        .tab.active .tab-title {
+            color: #fff;
+        }
+
+        .tab-close {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            opacity: 0;
+            transition: all 0.2s;
+            color: #8f8f9d;
+            flex-shrink: 0;
+        }
+
+        .tab:hover .tab-close {
+            opacity: 1;
+        }
+
+        .tab-close:hover {
+            background: #ff1b54;
+            color: #fff;
+        }
+
+        .new-tab-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-left: 5px;
+            color: #8f8f9d;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .new-tab-btn:hover {
+            background: #2a2a2e;
+            color: #ff1b54;
+        }
+
+        /* Address bar */
+        .address-bar {
+            background: #16161a;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #2a2a2e;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .nav-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #8f8f9d;
+            background: transparent;
+            border: none;
+        }
+
+        .nav-btn:hover {
+            background: #2a2a2e;
+            color: #ff1b54;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .url-container {
+            flex: 1;
+            background: #1d1d21;
+            border: 1px solid #2a2a2e;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            height: 36px;
+            transition: all 0.2s;
+        }
+
+        .url-container:focus-within {
+            border-color: #ff1b54;
+            box-shadow: 0 0 0 2px rgba(255, 27, 84, 0.2);
+        }
+
+        .url-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            color: #8f8f9d;
+        }
+
+        .url-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .url-input::placeholder {
+            color: #5a5a65;
+        }
+
+        .bookmark-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #8f8f9d;
+            background: transparent;
+            border: none;
+        }
+
+        .bookmark-btn:hover {
+            background: #2a2a2e;
+            color: #ff1b54;
+        }
+
+        .bookmark-btn.bookmarked {
+            color: #ff1b54;
+        }
+
+        /* Content area */
+        .content-area {
+            flex: 1;
+            background: #1d1d21;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .content-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* New tab page */
+        .new-tab-page {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .vortex-logo {
+            font-size: 64px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff1b54, #ff006e, #8338ec);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 40px;
+            text-shadow: 0 0 40px rgba(255, 27, 84, 0.5);
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            background: #26262b;
+            border: 2px solid #3a3a42;
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+            padding: 16px 70px 16px 20px;
+            font-size: 16px;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #ff1b54;
+            box-shadow: 0 0 0 3px rgba(255, 27, 84, 0.2);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            background: #ff1b54;
+            border: none;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .search-btn:hover {
+            background: #ff006e;
+        }
+
+        .search-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+        }
+
+        .quick-link {
+            background: #26262b;
+            border: 1px solid #3a3a42;
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #fff;
+            position: relative;
+        }
+
+        .quick-link:hover {
+            background: #2f2f35;
+            border-color: #ff1b54;
+            transform: translateY(-2px);
+        }
+
+        .quick-link-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .quick-link-title {
+            font-size: 13px;
+            color: #b1b1b8;
+        }
+
+        .quick-link-delete {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 27, 84, 0.9);
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.2s;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .quick-link:hover .quick-link-delete {
+            opacity: 1;
+        }
+
+        .quick-link-delete:hover {
+            background: #ff006e;
+            transform: scale(1.1);
+        }
+
+        .add-quick-link {
+            background: rgba(255, 27, 84, 0.1);
+            border: 2px dashed #ff1b54;
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #ff1b54;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .add-quick-link:hover {
+            background: rgba(255, 27, 84, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .add-quick-link-icon {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .add-quick-link-text {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Bookmarks panel */
+        .bookmark-item {
+            background: #26262b;
+            border: 1px solid #3a3a42;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bookmark-item:hover {
+            background: #2f2f35;
+            border-color: #ff1b54;
+        }
+
+        .bookmark-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .bookmark-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bookmark-url {
+            font-size: 12px;
+            color: #8f8f9d;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bookmark-menu {
+            position: relative;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .bookmark-menu-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8f8f9d;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .bookmark-menu-btn:hover {
+            background: #2f2f35;
+            color: #fff;
+        }
+
+        .bookmark-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #16161a;
+            border: 1px solid #3a3a42;
+            border-radius: 8px;
+            margin-top: 5px;
+            min-width: 140px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .bookmark-dropdown.active {
+            display: block;
+        }
+
+        .bookmark-dropdown-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .bookmark-dropdown-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .bookmark-dropdown-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .bookmark-dropdown-item:hover {
+            background: #2a2a2e;
+        }
+
+        .bookmark-dropdown-item.delete:hover {
+            background: #ff1b54;
+            color: #fff;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #5a5a65;
+            padding: 40px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Widgets panel */
+        .widget {
+            background: #26262b;
+            border: 1px solid #3a3a42;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .widget-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .widget-content {
+            color: #b1b1b8;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .cpu-bar, .ram-bar {
+            width: 100%;
+            height: 8px;
+            background: #1d1d21;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .cpu-fill, .ram-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff1b54, #ff006e);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: #1d1d21;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #8f8f9d;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff1b54;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1d1d21;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a42;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff1b54;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: #26262b;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10000;
+            border: 1px solid #3a3a42;
+        }
+
+        .has-tooltip:hover .tooltip {
+            opacity: 1;
+        }
+
+        /* Loading animation */
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff1b54, transparent);
+            animation: loading 1.5s infinite;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* GX Corner widget */
+        .gx-news-item {
+            background: #1d1d21;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .gx-news-item:hover {
+            background: #26262b;
+        }
+
+        .news-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .news-source {
+            font-size: 11px;
+            color: #8f8f9d;
+        }
+
+        .add-bookmark-form {
+            background: #26262b;
+            border: 1px solid #3a3a42;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #8f8f9d;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #1d1d21;
+            border: 1px solid #3a3a42;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: #ff1b54;
+        }
+
+        .form-btn {
+            background: #ff1b54;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .form-btn:hover {
+            background: #ff006e;
+        }
+    </style>
+</head>
+<body>
+    <div class="browser">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-icon active" data-panel="home" title="Home">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </div>
+            <div class="sidebar-icon" data-panel="bookmarks" title="Bookmarks">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+            </div>
+            <div class="sidebar-icon" data-panel="widgets" title="Widgets">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+            </div>
+            <div class="sidebar-icon" data-panel="gx-corner" title="GX Corner">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            </div>
+            <div class="sidebar-icon" data-panel="settings" title="Settings" style="margin-top: auto;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 1v6m0 6v6m0-6h6m-6 0H6m5.657-9.657l4.242 4.242m0 6.364l4.242 4.242m-15.556 0l4.242-4.242m0-6.364L4.343 1.343"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Sidebar Panels -->
+        <div class="sidebar-panel" id="panel-bookmarks">
+            <div class="panel-header">
+                Bookmarks
+                <span class="panel-close" onclick="closePanel()">×</span>
+            </div>
+            <div class="panel-content">
+                <div class="add-bookmark-form">
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-input" id="bookmark-title" placeholder="Enter bookmark title">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">URL</label>
+                        <input type="text" class="form-input" id="bookmark-url" placeholder="https://example.com">
+                    </div>
+                    <button class="form-btn" onclick="addBookmark()">Add Bookmark</button>
+                </div>
+                <div id="bookmarks-list"></div>
+            </div>
+        </div>
+
+        <div class="sidebar-panel" id="panel-widgets">
+            <div class="panel-header">
+                Widgets
+                <span class="panel-close" onclick="closePanel()">×</span>
+            </div>
+            <div class="panel-content">
+                <div class="widget">
+                    <div class="widget-header">
+                        ⚡ Performance Monitor
+                    </div>
+                    <div class="widget-content">
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>CPU Usage</span>
+                                <span id="cpu-percent">0%</span>
+                            </div>
+                            <div class="cpu-bar">
+                                <div class="cpu-fill" id="cpu-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>RAM Usage</span>
+                                <span id="ram-percent">0%</span>
+                            </div>
+                            <div class="ram-bar">
+                                <div class="ram-fill" id="ram-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-header">
+                        🕐 Quick Stats
+                    </div>
+                    <div class="widget-content">
+                        <div class="stat-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">Tabs Open</div>
+                                <div class="stat-value" id="tabs-count">1</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Bookmarks</div>
+                                <div class="stat-value" id="bookmarks-count">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Time</div>
+                                <div class="stat-value" id="current-time" style="font-size: 16px;">00:00</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Speed</div>
+                                <div class="stat-value">MAX</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-header">
+                        🎮 Gaming Mode
+                    </div>
+                    <div class="widget-content">
+                        Network Limiter: <span style="color: #ff1b54;">Unlimited</span><br>
+                        GX Cleaner: <span style="color: #4ade80;">Active</span><br>
+                        Battery Saver: <span style="color: #8f8f9d;">Off</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-panel" id="panel-gx-corner">
+            <div class="panel-header">
+                GX Corner
+                <span class="panel-close" onclick="closePanel()">×</span>
+            </div>
+            <div class="panel-content">
+                <div class="widget">
+                    <div class="widget-header">
+                        🎮 Gaming News
+                    </div>
+                    <div class="widget-content">
+                        <div class="gx-news-item" onclick="navigateToUrl('https://www.ign.com')">
+                            <div class="news-title">New Game Releases This Week</div>
+                            <div class="news-source">IGN Gaming</div>
+                        </div>
+                        <div class="gx-news-item" onclick="navigateToUrl('https://www.pcgamer.com')">
+                            <div class="news-title">Top 10 PC Games of 2024</div>
+                            <div class="news-source">PC Gamer</div>
+                        </div>
+                        <div class="gx-news-item" onclick="navigateToUrl('https://www.kotaku.com')">
+                            <div class="news-title">Esports Tournament Highlights</div>
+                            <div class="news-source">Kotaku</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-header">
+                        🔥 Trending
+                    </div>
+                    <div class="widget-content">
+                        <div class="gx-news-item" onclick="navigateToUrl('https://www.twitch.tv')">
+                            <div class="news-title">Live Streams on Twitch</div>
+                            <div class="news-source">Twitch</div>
+                        </div>
+                        <div class="gx-news-item" onclick="navigateToUrl('https://www.youtube.com/gaming')">
+                            <div class="news-title">YouTube Gaming Highlights</div>
+                            <div class="news-source">YouTube</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-header">
+                        💬 Messengers
+                    </div>
+                    <div class="widget-content">
+                        <div class="gx-news-item" onclick="navigateToUrl('https://discord.com/app')">
+                            <div class="news-title">Discord</div>
+                            <div class="news-source">Open Discord</div>
+                        </div>
+                        <div class="gx-news-item" onclick="navigateToUrl('https://web.whatsapp.com')">
+                            <div class="news-title">WhatsApp</div>
+                            <div class="news-source">Open WhatsApp Web</div>
+                        </div>
+                        <div class="gx-news-item" onclick="navigateToUrl('https://www.messenger.com')">
+                            <div class="news-title">Messenger</div>
+                            <div class="news-source">Open Messenger</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-panel" id="panel-settings">
+            <div class="panel-header">
+                Settings
+                <span class="panel-close" onclick="closePanel()">×</span>
+            </div>
+            <div class="panel-content">
+                <div class="widget">
+                    <div class="widget-header">
+                        🎨 Appearance
+                    </div>
+                    <div class="widget-content">
+                        Theme: <span style="color: #ff1b54;">Vortex Dark</span><br>
+                        Animations: <span style="color: #4ade80;">Enabled</span><br>
+                        Font Size: <span style="color: #fff;">Medium</span>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-header">
+                        ⚙️ Browser Settings
+                    </div>
+                    <div class="widget-content">
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" checked style="margin-right: 10px;">
+                                Enable Tab Animations
+                            </label>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" checked style="margin-right: 10px;">
+                                Show Bookmarks Bar
+                            </label>
+                        </div>
+                        <div>
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" checked style="margin-right: 10px;">
+                                Hardware Acceleration
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-header">
+                        🔒 Privacy
+                    </div>
+                    <div class="widget-content">
+                        Ad Blocker: <span style="color: #4ade80;">Enabled</span><br>
+                        Tracker Blocker: <span style="color: #4ade80;">Enabled</span><br>
+                        VPN: <span style="color: #8f8f9d;">Disabled</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Tab Bar -->
+            <div class="tab-bar" id="tab-bar">
+                <div class="new-tab-btn" onclick="createNewTab()" title="New Tab">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Address Bar -->
+            <div class="address-bar">
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goBack()" id="back-btn" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <button class="nav-btn" onclick="goForward()" id="forward-btn" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                    <button class="nav-btn" onclick="refreshPage()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="url-container">
+                    <svg class="url-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" class="url-input" id="url-input" placeholder="Search or enter website URL">
+                </div>
+
+                <button class="bookmark-btn" onclick="toggleBookmarkCurrentPage()" id="bookmark-current-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area" id="content-area">
+                <div class="loading" id="loading"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let tabs = [];
+        let activeTabId = null;
+        let tabIdCounter = 0;
+        let bookmarks = JSON.parse(localStorage.getItem('vortex-bookmarks') || '[]');
+        let quickLinks = JSON.parse(localStorage.getItem('vortex-quicklinks') || '[]');
+        let activePanelId = null;
+
+        // Initialize
+        function init() {
+            createNewTab(true);
+            loadBookmarks();
+            updateStats();
+            startClock();
+            simulatePerformance();
+
+            // URL input handler
+            const urlInput = document.getElementById('url-input');
+            urlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleUrlSubmit();
+                }
+            });
+
+            // Sidebar panel handlers
+            document.querySelectorAll('.sidebar-icon').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    const panelName = this.getAttribute('data-panel');
+                    if (panelName === 'home') {
+                        closePanel();
+                        return;
+                    }
+                    togglePanel(panelName);
+                });
+            });
+        }
+
+        // Tab Management
+        function createNewTab(isInitial = false) {
+            const tabId = tabIdCounter++;
+            const tab = {
+                id: tabId,
+                title: 'New Tab',
+                url: '',
+                isNewTab: true,
+                history: [],
+                historyIndex: -1
+            };
+
+            tabs.push(tab);
+
+            // Create tab element
+            const tabElement = document.createElement('div');
+            tabElement.className = 'tab';
+            tabElement.setAttribute('data-tab-id', tabId);
+            tabElement.innerHTML = `
+                <span class="tab-icon">⚡</span>
+                <span class="tab-title">${tab.title}</span>
+                <span class="tab-close" onclick="closeTab(${tabId}, event)">×</span>
+            `;
+            tabElement.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('tab-close')) {
+                    switchTab(tabId);
+                }
+            });
+
+            const tabBar = document.getElementById('tab-bar');
+            tabBar.appendChild(tabElement);
+
+            // Create content element
+            const contentElement = document.createElement('div');
+            contentElement.className = 'tab-content';
+            contentElement.setAttribute('data-tab-id', tabId);
+            contentElement.innerHTML = `
+                <div class="new-tab-page">
+                    <div class="vortex-logo">VORTEX</div>
+                    <div class="search-container">
+                        <input type="text" class="search-box" placeholder="Search the web..." onkeypress="handleNewTabSearch(event, ${tabId})">
+                        <button class="search-btn" onclick="performNewTabSearch(${tabId})">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="quick-links">
+                        ${quickLinks.map(link => `
+                            <a class="quick-link" onclick="navigateInTab(${tabId}, '${link.url}')">
+                                <div class="quick-link-icon">${link.icon}</div>
+                                <div class="quick-link-title">${link.title}</div>
+                            </a>
+                        `).join('')}
+                        <div class="add-quick-link" onclick="addQuickLink(${tabId})">
+                            <div class="add-quick-link-icon">+</div>
+                            <div class="add-quick-link-text">Add Link</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('content-area').appendChild(contentElement);
+
+            switchTab(tabId);
+            updateStats();
+        }
+
+        function closeTab(tabId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            if (tabs.length === 1) {
+                return; // Don't close the last tab
+            }
+
+            const tabIndex = tabs.findIndex(t => t.id === tabId);
+            if (tabIndex === -1) return;
+
+            tabs.splice(tabIndex, 1);
+
+            // Remove tab element
+            const tabElement = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+            if (tabElement) {
+                tabElement.remove();
+            }
+
+            // Remove content element
+            const contentElement = document.querySelector(`.tab-content[data-tab-id="${tabId}"]`);
+            if (contentElement) {
+                contentElement.remove();
+            }
+
+            // Switch to another tab if the closed tab was active
+            if (activeTabId === tabId) {
+                const newActiveTab = tabs[Math.max(0, tabIndex - 1)];
+                switchTab(newActiveTab.id);
+            }
+
+            updateStats();
+        }
+
+        function switchTab(tabId) {
+            activeTabId = tabId;
+
+            // Update tab UI
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const activeTab = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+
+            // Update content UI
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            const activeContent = document.querySelector(`.tab-content[data-tab-id="${tabId}"]`);
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
+
+            // Update URL input
+            const tab = tabs.find(t => t.id === tabId);
+            if (tab) {
+                document.getElementById('url-input').value = tab.url;
+                updateNavigationButtons(tab);
+            }
+        }
+
+        function updateTabTitle(tabId, title) {
+            const tab = tabs.find(t => t.id === tabId);
+            if (tab) {
+                tab.title = title;
+                const tabElement = document.querySelector(`.tab[data-tab-id="${tabId}"] .tab-title`);
+                if (tabElement) {
+                    tabElement.textContent = title;
+                }
+            }
+        }
+
+        function navigateInTab(tabId, url) {
+            const tab = tabs.find(t => t.id === tabId);
+            if (!tab) return;
+
+            // Process URL
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            tab.url = url;
+            tab.isNewTab = false;
+
+            // Add to history
+            if (tab.historyIndex < tab.history.length - 1) {
+                tab.history = tab.history.slice(0, tab.historyIndex + 1);
+            }
+            tab.history.push(url);
+            tab.historyIndex++;
+
+            const contentElement = document.querySelector(`.tab-content[data-tab-id="${tabId}"]`);
+            if (contentElement) {
+                // Show loading
+                document.getElementById('loading').classList.add('active');
+
+                // Extract domain for title
+                let domain = url.replace(/^https?:\/\//, '').split('/')[0];
+                updateTabTitle(tabId, domain);
+
+                // Create iframe for the content
+                // Note: Many sites block iframes due to X-Frame-Options
+                // For a real browser, you'd need a proper browser engine
+                contentElement.innerHTML = `
+                    <iframe class="content-iframe" src="${url}" onload="hideLoading()"></iframe>
+                `;
+            }
+
+            if (activeTabId === tabId) {
+                document.getElementById('url-input').value = url;
+                updateNavigationButtons(tab);
+            }
+        }
+
+        function handleUrlSubmit() {
+            const urlInput = document.getElementById('url-input');
+            let url = urlInput.value.trim();
+
+            if (!url) return;
+
+            // Check if it's a search query or URL
+            if (!url.includes('.') || url.includes(' ')) {
+                // It's a search query
+                url = `https://www.google.com/search?q=${encodeURIComponent(url)}&igu=1`;
+            } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            navigateInTab(activeTabId, url);
+        }
+
+        function handleNewTabSearch(event, tabId) {
+            if (event.key === 'Enter') {
+                let query = event.target.value.trim();
+                if (query) {
+                    let url = `https://www.google.com/search?q=${encodeURIComponent(query)}&igu=1`;
+                    navigateInTab(tabId, url);
+                }
+            }
+        }
+
+        function navigateToUrl(url) {
+            navigateInTab(activeTabId, url);
+            closePanel();
+        }
+
+        function hideLoading() {
+            setTimeout(() => {
+                document.getElementById('loading').classList.remove('active');
+            }, 300);
+        }
+
+        // Navigation
+        function goBack() {
+            const tab = tabs.find(t => t.id === activeTabId);
+            if (!tab || tab.historyIndex <= 0) return;
+
+            tab.historyIndex--;
+            const url = tab.history[tab.historyIndex];
+            tab.url = url;
+
+            const contentElement = document.querySelector(`.tab-content[data-tab-id="${activeTabId}"]`);
+            if (contentElement) {
+                contentElement.innerHTML = `
+                    <iframe class="content-iframe" src="${url}" onload="hideLoading()"></iframe>
+                `;
+            }
+
+            document.getElementById('url-input').value = url;
+            updateNavigationButtons(tab);
+        }
+
+        function goForward() {
+            const tab = tabs.find(t => t.id === activeTabId);
+            if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+
+            tab.historyIndex++;
+            const url = tab.history[tab.historyIndex];
+            tab.url = url;
+
+            const contentElement = document.querySelector(`.tab-content[data-tab-id="${activeTabId}"]`);
+            if (contentElement) {
+                contentElement.innerHTML = `
+                    <iframe class="content-iframe" src="${url}" onload="hideLoading()"></iframe>
+                `;
+            }
+
+            document.getElementById('url-input').value = url;
+            updateNavigationButtons(tab);
+        }
+
+        function refreshPage() {
+            const tab = tabs.find(t => t.id === activeTabId);
+            if (!tab || !tab.url) return;
+
+            const iframe = document.querySelector(`.tab-content[data-tab-id="${activeTabId}"] iframe`);
+            if (iframe) {
+                document.getElementById('loading').classList.add('active');
+                iframe.src = iframe.src;
+            }
+        }
+
+        function updateNavigationButtons(tab) {
+            const backBtn = document.getElementById('back-btn');
+            const forwardBtn = document.getElementById('forward-btn');
+
+            backBtn.disabled = !tab || tab.historyIndex <= 0;
+            forwardBtn.disabled = !tab || tab.historyIndex >= tab.history.length - 1;
+        }
+
+        // Bookmark Management
+        function addBookmark() {
+            const title = document.getElementById('bookmark-title').value.trim();
+            const url = document.getElementById('bookmark-url').value.trim();
+
+            if (!title || !url) {
+                alert('Please enter both title and URL');
+                return;
+            }
+
+            const bookmark = {
+                id: Date.now(),
+                title: title,
+                url: url.startsWith('http') ? url : 'https://' + url
+            };
+
+            bookmarks.push(bookmark);
+            localStorage.setItem('vortex-bookmarks', JSON.stringify(bookmarks));
+
+            document.getElementById('bookmark-title').value = '';
+            document.getElementById('bookmark-url').value = '';
+
+            loadBookmarks();
+            updateStats();
+        }
+
+        function deleteBookmark(id) {
+            bookmarks = bookmarks.filter(b => b.id !== id);
+            localStorage.setItem('vortex-bookmarks', JSON.stringify(bookmarks));
+            loadBookmarks();
+            updateStats();
+        }
+
+        function loadBookmarks() {
+            const bookmarksList = document.getElementById('bookmarks-list');
+
+            if (bookmarks.length === 0) {
+                bookmarksList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <div>No bookmarks yet</div>
+                    </div>
+                `;
+                return;
+            }
+
+            bookmarksList.innerHTML = bookmarks.map(bookmark => `
+                <div class="bookmark-item" onclick="navigateToUrl('${bookmark.url}')">
+                    <div class="bookmark-info">
+                        <div class="bookmark-title">${bookmark.title}</div>
+                        <div class="bookmark-url">${bookmark.url}</div>
+                    </div>
+                    <div class="bookmark-menu">
+                        <div class="bookmark-menu-btn" onclick="event.stopPropagation(); toggleBookmarkMenu(${bookmark.id})">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </div>
+                        <div class="bookmark-dropdown" id="bookmark-menu-${bookmark.id}">
+                            <div class="bookmark-dropdown-item" onclick="event.stopPropagation(); editBookmark(${bookmark.id})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Edit
+                            </div>
+                            <div class="bookmark-dropdown-item delete" onclick="event.stopPropagation(); deleteBookmark(${bookmark.id})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                Delete
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleBookmarkCurrentPage() {
+            const tab = tabs.find(t => t.id === activeTabId);
+            if (!tab || !tab.url) return;
+
+            const existingBookmark = bookmarks.find(b => b.url === tab.url);
+
+            if (existingBookmark) {
+                deleteBookmark(existingBookmark.id);
+            } else {
+                const bookmark = {
+                    id: Date.now(),
+                    title: tab.title,
+                    url: tab.url
+                };
+                bookmarks.push(bookmark);
+                localStorage.setItem('vortex-bookmarks', JSON.stringify(bookmarks));
+                loadBookmarks();
+                updateStats();
+            }
+
+            updateBookmarkButton();
+        }
+
+        function updateBookmarkButton() {
+            const tab = tabs.find(t => t.id === activeTabId);
+            const btn = document.getElementById('bookmark-current-btn');
+
+            if (tab && tab.url && bookmarks.some(b => b.url === tab.url)) {
+                btn.classList.add('bookmarked');
+            } else {
+                btn.classList.remove('bookmarked');
+            }
+        }
+
+        // Sidebar Panel Management
+        function togglePanel(panelName) {
+            const panel = document.getElementById(`panel-${panelName}`);
+            if (!panel) return;
+
+            // Close all panels
+            document.querySelectorAll('.sidebar-panel').forEach(p => {
+                p.classList.remove('active');
+            });
+
+            // Deactivate all sidebar icons
+            document.querySelectorAll('.sidebar-icon').forEach(icon => {
+                icon.classList.remove('active');
+            });
+
+            // If clicking the same panel, just close it
+            if (activePanelId === panelName) {
+                activePanelId = null;
+                return;
+            }
+
+            // Open the selected panel
+            panel.classList.add('active');
+            const icon = document.querySelector(`.sidebar-icon[data-panel="${panelName}"]`);
+            if (icon) {
+                icon.classList.add('active');
+            }
+
+            activePanelId = panelName;
+        }
+
+        function closePanel() {
+            document.querySelectorAll('.sidebar-panel').forEach(p => {
+                p.classList.remove('active');
+            });
+            document.querySelectorAll('.sidebar-icon').forEach(icon => {
+                icon.classList.remove('active');
+            });
+            document.querySelector('.sidebar-icon[data-panel="home"]').classList.add('active');
+            activePanelId = null;
+        }
+
+        // Stats and Widgets
+        function updateStats() {
+            document.getElementById('tabs-count').textContent = tabs.length;
+            document.getElementById('bookmarks-count').textContent = bookmarks.length;
+        }
+
+        function startClock() {
+            function updateTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+            }
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        function simulatePerformance() {
+            setInterval(() => {
+                const cpu = Math.floor(Math.random() * 30) + 20;
+                const ram = Math.floor(Math.random() * 40) + 30;
+
+                document.getElementById('cpu-percent').textContent = cpu + '%';
+                document.getElementById('cpu-fill').style.width = cpu + '%';
+
+                document.getElementById('ram-percent').textContent = ram + '%';
+                document.getElementById('ram-fill').style.width = ram + '%';
+            }, 2000);
+        }
+
+        // Quick Links Management
+        function addQuickLink(tabId) {
+            const icon = prompt('Enter an emoji icon (e.g., 🎮, 📱, ⚡):');
+            if (!icon) return;
+
+            const title = prompt('Enter link title:');
+            if (!title) return;
+
+            const url = prompt('Enter URL:');
+            if (!url) return;
+
+            const newLink = {
+                id: Date.now(),
+                icon: icon,
+                title: title,
+                url: url.startsWith('http') ? url : 'https://' + url
+            };
+
+            quickLinks.push(newLink);
+            localStorage.setItem('vortex-quicklinks', JSON.stringify(quickLinks));
+            
+            // Refresh all new tab pages
+            refreshQuickLinks();
+        }
+
+        function deleteQuickLink(linkId, event) {
+            event.stopPropagation();
+            
+            if (confirm('Remove this quick link?')) {
+                quickLinks = quickLinks.filter(link => link.id !== linkId);
+                localStorage.setItem('vortex-quicklinks', JSON.stringify(quickLinks));
+                
+                // Refresh all new tab pages
+                refreshQuickLinks();
+            }
+        }
+
+        function refreshQuickLinks() {
+            // Update all new tab pages with current quick links
+            document.querySelectorAll('.new-tab-page').forEach(page => {
+                const container = page.querySelector('.quick-links');
+                if (container) {
+                    const tabElement = page.closest('.tab-content');
+                    const tabId = tabElement ? parseInt(tabElement.getAttribute('data-tab-id')) : 0;
+                    
+                    container.innerHTML = quickLinks.map(link => `
+                        <div class="quick-link" onclick="navigateInTab(${tabId}, '${link.url}')">
+                            <span class="quick-link-delete" onclick="deleteQuickLink(${link.id}, event)">×</span>
+                            <div class="quick-link-icon">${link.icon}</div>
+                            <div class="quick-link-title">${link.title}</div>
+                        </div>
+                    `).join('') + `
+                        <div class="add-quick-link" onclick="addQuickLink(${tabId})">
+                            <div class="add-quick-link-icon">+</div>
+                            <div class="add-quick-link-text">Add Link</div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Search functions
+        function performNewTabSearch(tabId) {
+            const searchBox = document.querySelector(`.tab-content[data-tab-id="${tabId}"] .search-box`);
+            if (searchBox) {
+                const query = searchBox.value.trim();
+                if (query) {
+                    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&igu=1`;
+                    navigateInTab(tabId, url);
+                }
+            }
+        }
+
+        // Bookmark menu functions
+        function toggleBookmarkMenu(bookmarkId) {
+            // Close all other menus
+            document.querySelectorAll('.bookmark-dropdown').forEach(menu => {
+                if (menu.id !== `bookmark-menu-${bookmarkId}`) {
+                    menu.classList.remove('active');
+                }
+            });
+            
+            // Toggle the clicked menu
+            const menu = document.getElementById(`bookmark-menu-${bookmarkId}`);
+            if (menu) {
+                menu.classList.toggle('active');
+            }
+        }
+
+        function editBookmark(bookmarkId) {
+            const bookmark = bookmarks.find(b => b.id === bookmarkId);
+            if (!bookmark) return;
+
+            const newTitle = prompt('Edit bookmark title:', bookmark.title);
+            if (newTitle === null) return;
+
+            const newUrl = prompt('Edit bookmark URL:', bookmark.url);
+            if (newUrl === null) return;
+
+            if (newTitle.trim() && newUrl.trim()) {
+                bookmark.title = newTitle.trim();
+                bookmark.url = newUrl.trim().startsWith('http') ? newUrl.trim() : 'https://' + newUrl.trim();
+                localStorage.setItem('vortex-bookmarks', JSON.stringify(bookmarks));
+                loadBookmarks();
+            }
+        }
+
+        // Close bookmark menus when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.bookmark-menu')) {
+                document.querySelectorAll('.bookmark-dropdown').forEach(menu => {
+                    menu.classList.remove('active');
+                });
+            }
+        });
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>
