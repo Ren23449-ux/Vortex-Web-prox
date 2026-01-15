@@ -1748,7 +1748,7 @@
                 tabElement.className = "tab";
                 tabElement.setAttribute("data-tab-id", tabId);
                 tabElement.innerHTML = `
-                <span class="tab-icon">⚡</span>
+                <span class="tab-icon">🌐</span>
                 <span class="tab-title">${tab.title}</span>
                 <span class="tab-close" onclick="closeTab(${tabId}, event)">×</span>
             `;
