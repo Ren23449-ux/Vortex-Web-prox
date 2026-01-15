@@ -835,6 +835,12 @@
             input:checked + .mod-slider { background-color: #ff1b54; }
             input:checked + .mod-slider:before { transform: translateX(16px); }
 
+            /* Improved Settings Styling */
+            .settings-section { margin-bottom: 25px; border-bottom: 1px solid #3a3a42; padding-bottom: 15px; }
+            .settings-section h3 { font-size: 14px; text-transform: uppercase; color: #8f8f9d; margin-bottom: 15px; }
+            .settings-section:last-child { border-bottom: none; }
+            .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+
         </style>
     </head>
     <body>
@@ -939,14 +945,51 @@
                 </div>
             </div>
 
+            <!-- Enhanced Settings Panel -->
             <div class="sidebar-panel" id="panel-settings">
                 <div class="panel-header">Settings <span class="panel-close" onclick="closePanel()">×</span></div>
                 <div class="panel-content">
-                    <div class="widget"><div class="widget-header">🎨 Appearance</div><div class="widget-content">Theme: <span style="color: #ff1b54">Vortex Dark</span><br />Animations: <span style="color: #4ade80">Enabled</span><br />Font Size: <span style="color: #fff">Medium</span></div></div>
-                    <div class="widget"><div class="widget-header">⚙️ Browser Settings</div><div class="widget-content">
-                         <div style="margin-bottom: 10px"><label style="display: flex; align-items: center; cursor: pointer"><input type="checkbox" checked style="margin-right: 10px" />Enable Tab Animations</label></div>
-                         <div style="margin-bottom: 10px"><label style="display: flex; align-items: center; cursor: pointer"><input type="checkbox" checked style="margin-right: 10px" />Show Bookmarks Bar</label></div>
-                    </div></div>
+                    <div class="settings-section">
+                        <h3>Appearance</h3>
+                        <div class="setting-item">
+                            <span>Dark Theme</span>
+                            <label class="mod-switch"><input type="checkbox" checked onchange="toggleTheme()"><span class="mod-slider"></span></label>
+                        </div>
+                         <div class="setting-item">
+                            <span>Show Bookmarks Bar</span>
+                            <label class="mod-switch"><input type="checkbox" checked id="setting-bookmarks-bar" onchange="toggleBookmarksBar()"><span class="mod-slider"></span></label>
+                        </div>
+                         <div class="setting-item">
+                            <span>Enable Animations</span>
+                            <label class="mod-switch"><input type="checkbox" checked><span class="mod-slider"></span></label>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Privacy</h3>
+                         <div class="setting-item">
+                            <span>Block Ads</span>
+                            <label class="mod-switch"><input type="checkbox" checked><span class="mod-slider"></span></label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Do Not Track</span>
+                            <label class="mod-switch"><input type="checkbox"><span class="mod-slider"></span></label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Https Only</span>
+                            <label class="mod-switch"><input type="checkbox" checked><span class="mod-slider"></span></label>
+                        </div>
+                    </div>
+                     <div class="settings-section">
+                        <h3>Search Engine</h3>
+                        <select class="form-input" onchange="changeSearchEngine(this.value)">
+                            <option value="google">Google</option>
+                            <option value="bing">Bing</option>
+                            <option value="duckduckgo">DuckDuckGo</option>
+                        </select>
+                    </div>
+                     <div class="settings-section">
+                        <button class="form-btn" style="background: #ef4444;" onclick="clearData()">Clear Browsing Data</button>
+                    </div>
                 </div>
             </div>
 
@@ -962,7 +1005,7 @@
                     </div>
 
                     <!-- Tabs will be inserted here -->
-                    <div class="new-tab-btn" onclick="createNewTab()">
+                    <div class="new-tab-btn" onclick="createNewTab(false)">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -1090,7 +1133,8 @@
                     ];
                 }
 
-                createNewTab();
+                // Initial tab is Home Page
+                createNewTab(true);
                 loadBookmarks();
                 startClock();
                 simulatePerformance();
@@ -1098,11 +1142,16 @@
             }
 
             // Tab Management
-            function createNewTab() {
+            function createNewTab(isFirst = false) {
                 const tabId = Date.now().toString();
+                
+                // Fix: Only the first tab is "Home Page" by default. 
+                // Subsequent new tabs are named "New Tab"
+                const title = isFirst ? "Home Page" : "New Tab";
+                
                 const tab = {
                     id: tabId,
-                    title: "Home Page",
+                    title: title,
                     url: "",
                     history: [],
                     historyIndex: -1,
@@ -1120,7 +1169,7 @@
                     <div class="tab-icon">
                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                     </div>
-                    <div class="tab-title">Home Page</div>
+                    <div class="tab-title">${title}</div>
                     <div class="tab-close" onclick="closeTab('${tabId}', event)">×</div>
                 `;
 
@@ -1369,33 +1418,29 @@
                 if (!tab || tab.historyIndex <= 0) return;
                 tab.historyIndex--;
                 navigateInTab(activeTabId, tab.history[tab.historyIndex]); 
-                // Note: navigateInTab pushes to history, we might need a simpler 'loadUrl' to avoid duplicate history stack, 
-                // but for simplicity in this artifact, reusing navigateInTab (needs fix for history push)
-                // Correcting logic:
-                tab.history.pop(); // remove the push that navigateInTab did
-                tab.historyIndex--; // fix index
             }
 
             function goForward() {
-                 const tab = tabs.find(t => t.id === activeTabId);
+                const tab = tabs.find(t => t.id === activeTabId);
                 if (!tab || tab.historyIndex >= tab.history.length - 1) return;
                 tab.historyIndex++;
-                 // Similar simplification note as goBack
-                 navigateInTab(activeTabId, tab.history[tab.historyIndex]);
-                 tab.history.pop();
-                 tab.historyIndex--;
+                navigateInTab(activeTabId, tab.history[tab.historyIndex]);
             }
-            
+
             function refreshPage() {
-                 const iframe = document.querySelector(`.tab-content[data-tab-id="${activeTabId}"] iframe`);
-                 if(iframe) iframe.src = iframe.src;
+                const tab = tabs.find(t => t.id === activeTabId);
+                if (!tab || tab.isNewTab) return;
+                const contentElement = document.querySelector(`.tab-content[data-tab-id="${activeTabId}"]`);
+                const iframe = contentElement.querySelector("iframe");
+                if (iframe) iframe.src = iframe.src;
             }
 
             function updateTabTitle(tabId, title) {
                 const tab = tabs.find(t => t.id === tabId);
                 if (tab) {
                     tab.title = title;
-                    document.querySelector(`.tab[data-tab-id="${tabId}"] .tab-title`).textContent = title;
+                    const titleEl = document.querySelector(`.tab[data-tab-id="${tabId}"] .tab-title`);
+                    if (titleEl) titleEl.textContent = title;
                 }
             }
 
@@ -1514,6 +1559,22 @@
             function navigateToUrl(url) {
                 navigateInTab(activeTabId, url);
                 closePanel();
+            }
+
+            // Settings helpers
+            function toggleTheme() {
+                alert("Theme toggled! (This is a demo feature)");
+            }
+            function toggleBookmarksBar() {
+                alert("Bookmarks bar toggled! (This is a demo feature)");
+            }
+            function changeSearchEngine(engine) {
+                alert(`Search engine changed to ${engine}! (This is a demo feature)`);
+            }
+            function clearData() {
+                if(confirm("Clear all browsing data?")) {
+                    alert("Data cleared!");
+                }
             }
 
             // Stats
