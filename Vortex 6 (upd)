@@ -970,7 +970,7 @@
                 </div>
             </div>
 
-            <!-- Sidebar Panels (Bookmarks, Widgets, GX Corner, Settings) -->
+            <!-- Sidebar Panels (Bookmarks, Widgets, Gaming News, Settings) -->
             <div class="sidebar-panel" id="panel-bookmarks">
                 <div class="panel-header">Bookmarks <span class="panel-close" onclick="closePanel()">×</span></div>
                 <div class="panel-content">
@@ -1015,7 +1015,7 @@
             </div>
 
             <div class="sidebar-panel" id="panel-gx-corner">
-                <div class="panel-header">GX Corner <span class="panel-close" onclick="closePanel()">×</span></div>
+                <div class="panel-header">Gaming News <span class="panel-close" onclick="closePanel()">×</span></div>
                 <div class="panel-content">
                     <div class="widget"><div class="widget-header">🎮 Gaming News</div><div class="widget-content">
                         <div class="gx-news-item" onclick="navigateToUrl('https://www.ign.com')"><div class="news-title">New Game Releases This Week</div><div class="news-source">IGN Gaming</div></div>
