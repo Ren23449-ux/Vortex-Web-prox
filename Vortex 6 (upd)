@@ -1242,8 +1242,8 @@
                         { title: "Google", url: "https://www.google.com", icon: "🔍" },
                         { title: "YouTube", url: "https://www.youtube.com", icon: "▶️" },
                         { title: "GitHub", url: "https://github.com", icon: "💻" },
-                        { title: "Discord", url: "https://discord.com", icon: "💬" }
-                        { title: "Bing", url: "https://www.bing.com/search?q=ready+to+game",icon: "🌐"}
+                        { title: "Discord", url: "https://discord.com", icon: "💬" },
+                        { title: "Bing", url: "https://www.bing.com/search?q=ready+to+game", icon: "🌐"}
                     ];
                 }
 
