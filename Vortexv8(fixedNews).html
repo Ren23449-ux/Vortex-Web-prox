@@ -1441,6 +1441,54 @@
                 container.innerHTML = html;
             }
 
+            function removeQuickLink(index) {
+                if (confirm("Remove this shortcut?")) {
+                    quickLinks.splice(index, 1);
+                    localStorage.setItem("vortex-quick-links", JSON.stringify(quickLinks));
+                    
+                    // Refresh all open new tabs
+                    tabs.forEach(t => {
+                        if (!t.isIncognito) renderQuickLinks(t.id);
+                    });
+                }
+            }
+
+            function openAddLinkModal() {
+                document.getElementById("add-link-modal").classList.add("active");
+                document.getElementById("quick-link-title").value = "";
+                document.getElementById("quick-link-url").value = "";
+                document.getElementById("quick-link-icon").value = "🔗";
+            }
+            
+            function closeAddLinkModal() {
+                document.getElementById("add-link-modal").classList.remove("active");
+            }
+            
+            function saveQuickLink() {
+                const title = document.getElementById("quick-link-title").value || "New Site";
+                let url = document.getElementById("quick-link-url").value;
+                const icon = document.getElementById("quick-link-icon").value || "🔗";
+                
+                if (!url) {
+                    alert("Please enter a URL");
+                    return;
+                }
+                
+                if (!url.startsWith("http") && !url.startsWith("data:")) {
+                    url = "https://" + url;
+                }
+                
+                quickLinks.push({ title, url, icon });
+                localStorage.setItem("vortex-quick-links", JSON.stringify(quickLinks));
+                
+                closeAddLinkModal();
+                
+                // Refresh all open new tabs
+                tabs.forEach(t => {
+                    if (!t.isIncognito) renderQuickLinks(t.id);
+                });
+            }
+
             function navigateInTab(tabId, url) {
                 const tab = tabs.find(t => t.id === tabId);
                 if (!tab) return;
